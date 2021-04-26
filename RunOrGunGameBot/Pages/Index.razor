@@ -1,0 +1,8 @@
+﻿@page "/"
+@using RunOrGunGameBot.Bot.DataClasses 
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Buttons
+
+<SfTextBox Placeholder='Bot Token' @bind-Value='BotSettings.Token'></SfTextBox>
+<SfSwitch @bind-Checked="BotSettings.Enabled" OnLabel="On" OffLabel="Off"></SfSwitch>
+<SurveyPrompt Title="How is Blazor working for you?" />
