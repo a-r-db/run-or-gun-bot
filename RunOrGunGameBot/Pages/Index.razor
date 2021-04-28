@@ -1,8 +1,121 @@
 ﻿@page "/"
-@using RunOrGunGameBot.Bot.DataClasses 
-@using Syncfusion.Blazor.Inputs
-@using Syncfusion.Blazor.Buttons
+@using RunOrGunGameBot.Bot.DataClasses
+@using RunOrGunGameBot.Bot.DataServices
+@using ToyStackTraceFormatter 
 
-<SfTextBox Placeholder='Bot Token' @bind-Value='BotSettings.Token'></SfTextBox>
-<SfSwitch @bind-Checked="BotSettings.Enabled" OnLabel="On" OffLabel="Off"></SfSwitch>
-<SurveyPrompt Title="How is Blazor working for you?" />
+<TextEdit Role="TextRole.Password" @bind-Text="@BotSettings.Token" Placeholder="Bot Token" />
+<br />
+<Switch TValue="bool" Checked="@BotSettings.Enabled" CheckedChanged="@OnChangeState">Enable Bot</Switch>
+<br />
+<DataGrid RowDoubleClicked="@(args => OnRowClicked(args))" @bind-SelectedRow="@currentBotLogError" PageSize="5" Data="@BotSettings.BotLogErrorList" TItem="BotLogError">
+    <DataGridColumns>
+        <DataGridDateColumn TItem="BotLogError" Field="@BotLogError.DateTime" Caption="Date" />
+        <DataGridColumn TItem="BotLogError" Field="@BotLogError.Message" Caption="Message" />
+        <DataGridColumn TItem="BotLogError" Field="@BotLogError.BasicTrace" Caption="BasicTrace" />
+    </DataGridColumns>
+</DataGrid>
+<Modal @ref="modalRef">
+    <ModalContent Centered="true">
+        <ModalHeader>
+            <ModalTitle>@(BuildDate())</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            @(BuildHTML())
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="@HideModal">Close</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+@code {
+
+    private int selectedId;
+
+    // https://blazorise.com/docs/components/text/#with-bind-attribute
+    // https://blazorise.com/docs/components/switch/
+    private string Tag = "Index.razor";
+    private BotService BotService = new BotService();
+
+    // reference to the modal component
+    private Modal modalRef;
+    private BotLogError currentBotLogError;
+
+    public void OnChangeState(bool toggled)
+    {
+        try
+        {
+            BotSettings.Enabled = toggled;
+            BotService.BotStateChange();
+        }
+        catch (Exception exception)
+        {
+            BotSettings.BotLogErrorList.Add(new BotLogError(exception));
+        }
+    }
+
+    public void OnRowClicked(DataGridRowMouseEventArgs<BotLogError> e)
+    {
+        try
+        {
+            ShowModal();
+        }
+        catch (Exception exception)
+        {
+            BotSettings.BotLogErrorList.Add(new BotLogError(exception));
+        }
+    }
+
+    private string BuildDate()
+    {
+        Exception exception = currentBotLogError.Exception;
+        if (exception == null)
+        {
+            return "";
+        }
+        return currentBotLogError.DateTime.ToString();
+    }
+
+    private string BuildHTML()
+    {
+        Exception exception = currentBotLogError.Exception;
+        if (exception == null)
+        {
+            return "";
+        }
+        string fullTraceHTML = "";
+        while (exception.InnerException != null)
+        {
+            fullTraceHTML += TraceToHTML(exception.StackTrace);
+            exception = exception.InnerException;
+        }
+        return fullTraceHTML;
+    }
+
+
+    private string TraceToHTML(string input)
+    {
+        return "<pre><code>"
+            + StackTraceFormatter.FormatHtml(
+            input,
+            new StackTraceHtmlFragments
+            {
+                BeforeType = "<strong>",    // highlight type
+                AfterMethod = "</strong>",   // ...and method
+                BeforeParameterName = "<em>",        // emphasise parameter names
+                AfterParameterName = "</em>",
+            })
+            + "</code></pre>";
+    }
+
+    private void ShowModal()
+    {
+        modalRef.Show();
+    }
+
+    private void HideModal()
+    {
+        modalRef.Hide();
+    }
+}

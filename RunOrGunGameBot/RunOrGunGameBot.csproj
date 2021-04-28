@@ -5,10 +5,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazorise.Bootstrap" Version="0.9.3.6" />
+    <PackageReference Include="Blazorise.DataGrid" Version="0.9.3.6" />
+    <PackageReference Include="Blazorise.Icons.FontAwesome" Version="0.9.3.6" />
     <PackageReference Include="DSharpPlus" Version="4.0.1" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.1" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.1" />
-    <PackageReference Include="Syncfusion.Blazor" Version="19.1.0.57" />
+    <PackageReference Include="ToyStackTraceFormatter" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="IBot\IDataClasses\" />
   </ItemGroup>
 
 </Project>

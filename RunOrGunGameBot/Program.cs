@@ -13,7 +13,6 @@ namespace RunOrGunGameBot
     {
         public static void Main(string[] args)
         {
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NDM2NzUwQDMxMzkyZTMxMmUzMFduUEFrNGk2VWJLbVlrVkJrUXNmczZERjY2OG5NYmZMMEJ0enFYUUpGclk9");
             CreateHostBuilder(args).Build().Run();
         }
 
