@@ -1,4 +1,5 @@
 using RunOrGunGameBot.Bot.DataServices;
+using RunOrGunGameBot.Bot.Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace RunOrGunGameBot.Bot.DataClasses
         public static readonly BotService BotService = new();
         public static readonly List<BotLog> BotLogList = new();
         public static readonly List<BotLogError> BotLogErrorList = new();
-        public static readonly List<BotGuild> BotGuilds = new();
+        public static readonly List<GuildQueue> BotGuilds = new();
         public static readonly List<BotChannel> BotChannels = new();
         public static readonly List<BotMessage> BotMessages = new();
         public static string Token { get; set; }

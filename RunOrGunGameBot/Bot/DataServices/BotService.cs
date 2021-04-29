@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.EventArgs;
 using RunOrGunGameBot.Bot.DataClasses;
+using RunOrGunGameBot.Bot.Game;
 
 namespace RunOrGunGameBot.Bot.DataServices
 {
@@ -103,7 +104,7 @@ namespace RunOrGunGameBot.Bot.DataServices
         private Task Bot_GuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
         {
             // add the guild to the bot's guild collection
-            BotSettings.BotGuilds.Add(new BotGuild(e.Guild));
+            BotSettings.BotGuilds.Add(new GuildQueue(e.Guild));
             return Task.CompletedTask;
         }
 
@@ -111,7 +112,7 @@ namespace RunOrGunGameBot.Bot.DataServices
         private Task Bot_GuildCreated(DiscordClient sender, GuildCreateEventArgs e)
         {
             // add the guild to the bot's guild collection
-            BotSettings.BotGuilds.Add(new BotGuild(e.Guild));
+            BotSettings.BotGuilds.Add(new GuildQueue(e.Guild));
             return Task.CompletedTask;
         }
 
@@ -132,7 +133,7 @@ namespace RunOrGunGameBot.Bot.DataServices
         private Task Bot_GuildUnavailable(DiscordClient sender, GuildDeleteEventArgs e)
         {
             // remove the guild from the bot's guild collection
-            BotGuild guild = BotSettings.BotGuilds.FirstOrDefault(xbg => xbg.Id == e.Guild.Id); ;
+            GuildQueue guild = BotSettings.BotGuilds.FirstOrDefault(xbg => xbg.Id == e.Guild.Id); ;
             BotSettings.BotGuilds.Remove(guild);
             return Task.CompletedTask;
         }
@@ -141,7 +142,7 @@ namespace RunOrGunGameBot.Bot.DataServices
         private Task Bot_GuildDeleted(DiscordClient sender, GuildDeleteEventArgs e)
         {
             // remove the guild from the bot's guild collection
-            BotGuild guild = BotSettings.BotGuilds.FirstOrDefault(xbg => xbg.Id == e.Guild.Id); ;
+            GuildQueue guild = BotSettings.BotGuilds.FirstOrDefault(xbg => xbg.Id == e.Guild.Id); ;
             BotSettings.BotGuilds.Remove(guild);
             return Task.CompletedTask;
         }

@@ -3,7 +3,7 @@ using System;
 
 namespace RunOrGunGameBot.Bot.DataClasses
 {
-    public struct BotGuild
+    public class BotGuild
     {
         public DiscordGuild Guild { get; }
         public ulong Id => this.Guild.Id;
