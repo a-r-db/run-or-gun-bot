@@ -1,11 +1,16 @@
 using System.Threading.Tasks;
 using DSharpPlus;
 using Microsoft.Extensions.Logging;
+using RunOrGunGameBot.Bot.DataClasses;
 
 namespace RunOrGunGameBot.Bot
-{   
+{
     public class Bot : IBot
-    {   
+    {
+        /// <summary>
+        /// Log Tag
+        /// </summary>
+        private const string Tag = "Bot";
         /// <inheritdoc/>
         public DiscordClient Client { get; }
 
@@ -28,10 +33,16 @@ namespace RunOrGunGameBot.Bot
 
         /// <inheritdoc/>
         public Task StartAsync()
-            => this.Client.ConnectAsync();
+        {
+            BotSettings.BotLogList.Add(new BotLog(Tag, "Bot Connecting.."));
+            return this.Client.ConnectAsync();
+        }
 
         /// <inheritdoc/>        
         public Task StopAsync()
-            => this.Client.DisconnectAsync();
+        {
+            BotSettings.BotLogList.Add(new BotLog(Tag, "Bot Stopped."));
+            return this.Client.DisconnectAsync();
+        }
     }
 }

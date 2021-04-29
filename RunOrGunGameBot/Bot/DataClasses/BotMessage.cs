@@ -1,5 +1,6 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
+using System;
 
 namespace RunOrGunGameBot.Bot.DataClasses
 {
@@ -19,6 +20,28 @@ namespace RunOrGunGameBot.Bot.DataClasses
         public override string ToString()
         {
             return this.Message.Content;
+        }
+
+        public static bool operator ==(BotMessage a, Object obj)
+        {
+            if (obj == null) return false;
+            return a.GetHashCode() == ((BotMessage)obj).GetHashCode();
+        }
+
+        public static bool operator !=(BotMessage a, Object obj)
+        {
+            if (obj == null) return false;
+            return a.GetHashCode() != ((BotMessage)obj).GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return this.GetHashCode() == ((BotMessage)obj).GetHashCode();
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

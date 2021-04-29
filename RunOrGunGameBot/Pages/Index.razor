@@ -1,27 +1,35 @@
 ﻿@page "/"
 @using RunOrGunGameBot.Bot.DataClasses
 @using RunOrGunGameBot.Bot.DataServices
-@using ToyStackTraceFormatter 
+@using ToyStackTraceFormatter
 
 <TextEdit Role="TextRole.Password" @bind-Text="@BotSettings.Token" Placeholder="Bot Token" />
 <br />
-<Switch TValue="bool" Checked="@BotSettings.Enabled" CheckedChanged="@OnChangeState">Enable Bot</Switch>
+<Switch TValue="bool" Checked="@BotSettings.Enabled" CheckedChanged="@OnStateChanged">Enable Bot</Switch>
 <br />
-<DataGrid RowDoubleClicked="@(args => OnRowClicked(args))" @bind-SelectedRow="@currentBotLogError" PageSize="5" Data="@BotSettings.BotLogErrorList" TItem="BotLogError">
+<DataGrid ShowPager="true" RowDoubleClicked="@(args => OnErrorRowClicked(args))" @bind-SelectedRow="@botLogError" PageSize="5" Data="@BotSettings.BotLogErrorList" TItem="BotLogError">
     <DataGridColumns>
-        <DataGridDateColumn TItem="BotLogError" Field="@BotLogError.DateTime" Caption="Date" />
-        <DataGridColumn TItem="BotLogError" Field="@BotLogError.Message" Caption="Message" />
-        <DataGridColumn TItem="BotLogError" Field="@BotLogError.BasicTrace" Caption="BasicTrace" />
+        <DataGridDateColumn TItem="BotLogError" Field="@nameof(BotLogError.DateTime)" DisplayFormat="{0:MM/dd/yyyy hh:mm:ss tt}" Caption="Date" />
+        <DataGridColumn TItem="BotLogError" Field="@nameof(BotLogError.Message)" Caption="Message" />
+        <DataGridColumn TItem="BotLogError" Field="@nameof(BotLogError.StackTrace)" Caption="BasicTrace" />
+    </DataGridColumns>
+</DataGrid>
+<br />
+<DataGrid ShowPager="true" PageSize="5" Data="@BotSettings.BotLogList" TItem="BotLog">
+    <DataGridColumns>
+        <DataGridColumn TItem="BotLog" Field="@nameof(BotLog.Tag)" Caption="Tag" />
+        <DataGridDateColumn TItem="BotLog" Field="@nameof(BotLog.DateTime)" DisplayFormat="{0:MM/dd/yyyy hh:mm:ss tt}" Caption="Date" />
+        <DataGridColumn TItem="BotLog" Field="@nameof(BotLog.Message)" Caption="Message" />
     </DataGridColumns>
 </DataGrid>
 <Modal @ref="modalRef">
     <ModalContent Centered="true">
         <ModalHeader>
-            <ModalTitle>@(BuildDate())</ModalTitle>
+            <ModalTitle>@logErrorDate</ModalTitle>
             <CloseButton />
         </ModalHeader>
         <ModalBody>
-            @(BuildHTML())
+            @logErrorException
         </ModalBody>
         <ModalFooter>
             <Button Color="Color.Secondary" Clicked="@HideModal">Close</Button>
@@ -31,8 +39,6 @@
 
 @code {
 
-    private int selectedId;
-
     // https://blazorise.com/docs/components/text/#with-bind-attribute
     // https://blazorise.com/docs/components/switch/
     private string Tag = "Index.razor";
@@ -40,25 +46,21 @@
 
     // reference to the modal component
     private Modal modalRef;
-    private BotLogError currentBotLogError;
+    private BotLogError botLogError;
+    private string logErrorDate;
+    private string logErrorException;
 
-    public void OnChangeState(bool toggled)
+    private void OnStateChanged(bool switchState)
     {
-        try
-        {
-            BotSettings.Enabled = toggled;
-            BotService.BotStateChange();
-        }
-        catch (Exception exception)
-        {
-            BotSettings.BotLogErrorList.Add(new BotLogError(exception));
-        }
+        BotSettings.Enabled = switchState;
     }
 
-    public void OnRowClicked(DataGridRowMouseEventArgs<BotLogError> e)
+    public void OnErrorRowClicked(DataGridRowMouseEventArgs<BotLogError> e)
     {
         try
         {
+            BuildDate();
+            BuildHTML();
             ShowModal();
         }
         catch (Exception exception)
@@ -67,30 +69,30 @@
         }
     }
 
-    private string BuildDate()
+    private void BuildDate()
     {
-        Exception exception = currentBotLogError.Exception;
-        if (exception == null)
-        {
-            return "";
-        }
-        return currentBotLogError.DateTime.ToString();
+        DateTime dateTime;
+        dateTime = botLogError.DateTime;
+        logErrorDate = (dateTime == default(DateTime)) ? "" : dateTime.ToString();
     }
 
-    private string BuildHTML()
+    private void BuildHTML()
     {
-        Exception exception = currentBotLogError.Exception;
+        Exception exception = botLogError.Exception;
         if (exception == null)
         {
-            return "";
+            logErrorException = "";
         }
-        string fullTraceHTML = "";
-        while (exception.InnerException != null)
+        else
         {
-            fullTraceHTML += TraceToHTML(exception.StackTrace);
-            exception = exception.InnerException;
+            string fullTraceHTML = exception.StackTrace;
+            while (exception.InnerException != null)
+            {
+                exception = exception.InnerException;
+                fullTraceHTML += TraceToHTML(exception.StackTrace);
+            }
+            logErrorException = fullTraceHTML;
         }
-        return fullTraceHTML;
     }
 
 
@@ -102,9 +104,9 @@
             new StackTraceHtmlFragments
             {
                 BeforeType = "<strong>",    // highlight type
-                AfterMethod = "</strong>",   // ...and method
-                BeforeParameterName = "<em>",        // emphasise parameter names
-                AfterParameterName = "</em>",
+            AfterMethod = "</strong>",   // ...and method
+            BeforeParameterName = "<em>",        // emphasise parameter names
+            AfterParameterName = "</em>",
             })
             + "</code></pre>";
     }

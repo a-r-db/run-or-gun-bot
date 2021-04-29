@@ -1,0 +1,69 @@
+﻿@page "/GuildInfo"
+
+@using RunOrGunGameBot.Bot.DataClasses
+
+<DataGrid ShowPager="true" PageSize="5" @bind-SelectedRow="@BotSettings.SelectedGuild" Data="@BotSettings.BotGuilds" TItem="BotGuild">
+    <DataGridColumns>
+        <DataGridColumn TItem="BotGuild" Field="@nameof(BotGuild.Name)" Caption="Guild Name" />
+        <DataGridColumn TItem="BotGuild" Field="@nameof(BotGuild.IconUrl)" Caption="Guild Icon">
+            <DisplayTemplate>
+                <Image Source="@(context.IconUrl)"></Image>
+            </DisplayTemplate>
+        </DataGridColumn>
+    </DataGridColumns>
+</DataGrid>
+
+<DataGrid ShowPager="true" PageSize="5" @bind-SelectedRow="@BotSettings.SelectedChannel" Data="@BotSettings.BotChannels" TItem="BotChannel">
+    <DataGridColumns>
+        <DataGridColumn TItem="BotChannel" Field="@nameof(BotChannel.Name)" Caption="Channel Name" />
+    </DataGridColumns>
+</DataGrid>
+
+<DataGrid ShowPager="true" PageSize="5" Data="@BotSettings.BotMessages" TItem="BotMessage">
+    <DataGridColumns>
+        <DataGridColumn TItem="BotMessage" Field="@nameof(BotMessage.AuthorName)" Caption="Message Author" />
+        <DataGridColumn TItem="BotMessage" Field="@nameof(BotMessage.Content)" Caption="Message Content" />
+    </DataGridColumns>
+</DataGrid>
+
+<TextEdit @onkeyup="@OnKeyUp" @bind-Text="@TextInput"></TextEdit>
+
+
+@code {
+    private string TextInput;
+
+    private void OnKeyUp(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+        {
+            this.SendMessage();
+        }
+    }
+    // this is called by the send button and message textbox 
+    // key press handler
+    private void SendMessage()
+    {
+        // check if we have a channel selected, if not, do
+        // nothing
+        if (BotSettings.SelectedChannel.Channel == null)
+            return;
+
+        // capture the next message and reset the text box
+        var txt = this.TextInput;
+        this.TextInput = "";
+
+        // check if a message was typed in at all, if not,
+        // do nothing
+        if (string.IsNullOrWhiteSpace(txt))
+            return;
+
+        // start an asynchronous task which will send the
+        // message, and once it's done, set the message
+        // textbox's text to empty using the UI thread
+        _ = Task.Run(() => this.BotSendMessageCallback(txt, BotSettings.SelectedChannel));
+    }
+    // this is used by the send message method, to
+    // asynchronously send the message
+    private Task BotSendMessageCallback(string text, BotChannel chn)
+        => chn.Channel.SendMessageAsync(text);
+} 

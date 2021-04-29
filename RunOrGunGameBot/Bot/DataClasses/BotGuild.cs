@@ -1,4 +1,5 @@
 using DSharpPlus.Entities;
+using System;
 
 namespace RunOrGunGameBot.Bot.DataClasses
 {
@@ -17,6 +18,27 @@ namespace RunOrGunGameBot.Bot.DataClasses
         public override string ToString()
         {
             return this.Guild.Name;
+        }
+        public static bool operator ==(BotGuild a, Object obj)
+        {
+            if (obj == null) return false;
+            return a.GetHashCode() == ((BotGuild)obj).GetHashCode();
+        }
+
+        public static bool operator !=(BotGuild a, Object obj)
+        {
+            if (obj == null) return false;
+            return a.GetHashCode() != ((BotGuild)obj).GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return this.GetHashCode() == ((BotGuild)obj).GetHashCode();
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }
