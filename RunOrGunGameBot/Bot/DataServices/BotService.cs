@@ -1,7 +1,9 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using RunOrGunGameBot.Bot.DataClasses;
 using RunOrGunGameBot.Bot.Game;
@@ -24,7 +26,7 @@ namespace RunOrGunGameBot.Bot.DataServices
         /// <inheritdoc/>
         public void BotStateChange()
         {
-            
+
             // check if a bot thread is running
             if (this.BotThread == null)
             {
@@ -63,7 +65,7 @@ namespace RunOrGunGameBot.Bot.DataServices
             // clear the token text box, we don't need it anymore
             BotSettings.Token = "";
         }
-        
+
         /// <inheritdoc/>
         public async Task BotThreadCallback()
         {
@@ -100,11 +102,55 @@ namespace RunOrGunGameBot.Bot.DataServices
             return Task.CompletedTask;
         }
 
+        // Check for or build Bot Category and Bot Channel
+        private void CheckForCategoryAndChannel(GuildQueue guildQueue)
+        {
+            try
+            {
+                DiscordChannel discordCat = (from c in guildQueue.Guild.Channels.Values
+                                             where (c.Name.ToLower() == GameConst.GUILD_CATEGORY_NAME.ToLower()
+                                             && c.IsCategory)
+                                             select c).FirstOrDefault();
+                if (discordCat == default)
+                {
+                    Task<DiscordChannel> task = guildQueue.Guild.CreateChannelCategoryAsync("Bot");
+                    task.Wait();
+                    guildQueue.discordCategory = task.Result;
+                }
+                else
+                {
+                    guildQueue.discordCategory = discordCat;
+                }
+                DiscordChannel discordChan = (from c in guildQueue.Guild.Channels.Values
+                                              where (c.Name == GameConst.GUILD_CHANNEL_NAME
+                                              && !c.IsCategory)
+                                              select c).FirstOrDefault();
+                if (discordChan == default)
+                {
+                    Task<DiscordChannel> task = guildQueue.Guild.CreateChannelAsync(
+                        GameConst.GUILD_CHANNEL_NAME,
+                        ChannelType.Text,
+                        guildQueue.discordCategory);
+                    task.Wait();
+                    guildQueue.discordChannel = task.Result;
+                }
+                else
+                {
+                    guildQueue.discordChannel = discordChan;
+                }
+                BotSettings.BotGuilds.Add(guildQueue);
+            }
+            catch (Exception e)
+            {
+                BotSettings.BotLogErrorList.Add(new BotLogError(e));
+            }
+        }
+
         // called when any of the bot's guilds becomes available
         private Task Bot_GuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
         {
             // add the guild to the bot's guild collection
-            BotSettings.BotGuilds.Add(new GuildQueue(e.Guild));
+            CheckForCategoryAndChannel(new GuildQueue(e.Guild));
             return Task.CompletedTask;
         }
 
@@ -112,7 +158,7 @@ namespace RunOrGunGameBot.Bot.DataServices
         private Task Bot_GuildCreated(DiscordClient sender, GuildCreateEventArgs e)
         {
             // add the guild to the bot's guild collection
-            BotSettings.BotGuilds.Add(new GuildQueue(e.Guild));
+            CheckForCategoryAndChannel(new GuildQueue(e.Guild));
             return Task.CompletedTask;
         }
 

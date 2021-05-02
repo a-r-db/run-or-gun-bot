@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace RunOrGunGameBot.Bot.Game
+﻿namespace RunOrGunGameBot.Bot.Game
 {
     public enum TurnOption
     {
-        Hold,
-        PlantMine,
-        Shoot,
+        Init,
+        Call,
+        Cloak,
+        Melee,
+        Mine,
+        Move,
         Reload,
         Scan,
-        Move,
+        Shoot,
+        Skip,
         Teleport,
-        Cloak
+        Leave,
+        Airstrike
     }
 }

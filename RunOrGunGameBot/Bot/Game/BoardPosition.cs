@@ -1,70 +1,132 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace RunOrGunGameBot.Bot.Game
 {
     public class BoardPosition
     {
-        public int PositionAcrossWidth;
-        public int PositionAcrossHeight;
+        public int PositionRow;
+        public int PositionCol;
 
-        public BoardPosition(int i, int j)
+        public BoardPosition(int row, int col, int boardHeight, int boardWidth)
         {
-            this.PositionAcrossHeight = i;
-            this.PositionAcrossWidth = j;
+            this.PositionRow = row;
+            this.PositionCol = col;
+            if (this.BadPosition(boardHeight, boardWidth))
+            {
+                throw new GameBoardException($"Position off the board (out of range). Try again. {row} {col}");
+            }
         }
 
-        public string PositionWidthChar()
+        public string PositionToLetterString()
         {
-            return $"{Convert.ToChar(PositionAcrossWidth + 40),2}";
+            return $"{Convert.ToChar(PositionCol + 65),2}";
         }
 
-        public string PositionHeightString()
+        public string PositionToNumberString()
         {
-            return $"{PositionAcrossHeight.ToString().PadLeft(2, '0')}";
+            return $"{PositionRow.ToString().PadLeft(2, '0')}";
         }
 
         public bool BadPosition(int boardHeight, int boardWidth)
         {
-            if (PositionAcrossHeight < boardHeight && PositionAcrossHeight > -1
-                && PositionAcrossWidth < boardWidth && PositionAcrossWidth > -1)
+            if (PositionRow < boardHeight && PositionRow > -1
+                && PositionCol < boardWidth && PositionCol > -1)
+                return false;
+            return true;
+        }
+
+        public static bool BadPosition(BoardPosition temp, int boardHeight, int boardWidth)
+        {
+            if (temp.PositionRow < boardHeight && temp.PositionRow > -1
+                && temp.PositionCol < boardWidth && temp.PositionCol > -1)
                 return false;
             return true;
         }
 
         public void TryFuturePosition(string direction, int distance, int boardHeight, int boardWidth)
         {
-            BoardPosition temp = this;
+            BoardPosition temp
+                = new BoardPosition(this.PositionRow, this.PositionCol,
+                boardHeight, boardWidth);
             switch (direction)
             {
                 case "up":
-                case "w":
-                    temp.PositionAcrossHeight -= distance;
+                case "u":
+                    if (distance != -1)
+                        temp.PositionRow -= distance;
+                    else
+                        temp.PositionRow = 0;
                     break;
                 case "down":
-                case "s":
-                    temp.PositionAcrossHeight += distance;
+                case "d":
+                    if (distance != -1)
+                        temp.PositionRow += distance;
+                    else
+                        temp.PositionRow = boardHeight - 1;
                     break;
                 case "right":
-                case "d":
-                    temp.PositionAcrossWidth += distance;
+                case "r":
+                    if (distance != -1)
+                        temp.PositionCol += distance;
+                    else
+                        temp.PositionCol = boardHeight - 1;
                     break;
                 case "left":
-                case "a":
-                    temp.PositionAcrossWidth -= distance;
+                case "l":
+                    if (distance != -1)
+                        temp.PositionCol -= distance;
+                    else
+                        temp.PositionCol = 0;
                     break;
+                default:
+                    throw new GameBoardException($"Invalid option {direction}");
             }
-            if (BadPosition(boardHeight, boardWidth))
-                throw new GameBoardException("Position off the board (out of range). Try again.");
-            this.PositionAcrossHeight = temp.PositionAcrossHeight;
-            this.PositionAcrossWidth = temp.PositionAcrossWidth;
+            if (BadPosition(temp, boardHeight, boardWidth))
+                throw new GameBoardException($"Position off the board (out of range). Try again. {temp.PositionRow} {temp.PositionCol}");
+            this.PositionRow = temp.PositionRow;
+            this.PositionCol = temp.PositionCol;
         }
 
-        public static BoardPosition UserPositionInput(char c, int i)
+        public static BoardPosition UserPositionInput(char c, int i, int boardHeight, int boardWidth)
         {
-            return new(Convert.ToInt32(c) + 40, i);
+            return new(Convert.ToInt32(c) - 65, i, boardHeight, boardWidth);
+        }
+
+        public static bool operator ==(BoardPosition a, BoardPosition b)
+        {
+            return a.PositionRow == b.PositionRow
+                && a.PositionCol == b.PositionCol;
+        }
+
+        public static bool operator !=(BoardPosition a, BoardPosition b)
+        {
+            return !(a == b);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            return this == obj as BoardPosition;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+        public static string PositionToLetterString(int input)
+        {
+            return $"{Convert.ToChar(input + 65),2}";
+        }
+
+        public static string PositionToNumberString(int input)
+        {
+            return $"{input.ToString().PadLeft(2, '0')}";
+        }
+
+        public override string ToString()
+        {
+            return $"{this.PositionRow} {this.PositionCol}";
         }
     }
 }

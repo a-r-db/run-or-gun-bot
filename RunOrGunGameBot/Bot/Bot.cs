@@ -40,8 +40,8 @@ namespace RunOrGunGameBot.Bot
 
             var ccfg = new CommandsNextConfiguration
             {
-                // let's use the string prefix defined in config.json
-                StringPrefixes = new[] { "!rog" },
+                // let's use a string prefix
+                StringPrefixes = new[] { "." },
 
                 // enable responding in direct messages
                 EnableDms = true,
@@ -59,7 +59,8 @@ namespace RunOrGunGameBot.Bot
             this.Commands.CommandErrored += this.Commands_CommandErrored;
 
             // up next, let's register our commands
-            this.Commands.RegisterCommands<Commands>();
+            this.Commands.RegisterCommands<CommandsGame>();
+            this.Commands.RegisterCommands<CommandsPlayer>();
 
             // set up our custom help formatter
             this.Commands.SetHelpFormatter<SimpleHelpFormatter>();

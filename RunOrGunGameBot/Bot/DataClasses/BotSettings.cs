@@ -2,7 +2,9 @@ using RunOrGunGameBot.Bot.DataServices;
 using RunOrGunGameBot.Bot.Game;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Xml.Serialization;
 
 namespace RunOrGunGameBot.Bot.DataClasses
 {
@@ -78,6 +80,16 @@ namespace RunOrGunGameBot.Bot.DataClasses
             set {
                 _selectedMessage = value; 
             }
+        }
+
+        public static void SaveLogs<T>(T data, string prefix)
+        {
+            XmlSerializer ser = new XmlSerializer(typeof(T));
+            TextWriter writer =
+                new StreamWriter("." + Path.DirectorySeparatorChar + prefix
+                + DateTimeOffset.Now.ToUnixTimeSeconds().ToString() + ".log");
+            ser.Serialize(writer, data);
+            writer.Close();
         }
     }
 }

@@ -1,16 +1,26 @@
 ﻿using System;
-
+using System.Text;
+using System.Xml.Serialization;
 
 namespace RunOrGunGameBot.Bot.DataClasses
 {
-    public struct BotLogError
+    [Serializable]
+    public class BotLogError
     {
         private static int logID = 0;
         public int LogID { get; set; }
         public DateTime DateTime { get; set; }
+        [XmlIgnore]
         public Exception Exception { get; set; }
+        public string ExceptionAsString => FlattenException(this.Exception);
         public string Message => this.Exception.Message;
         public string StackTrace => this.Exception.StackTrace;
+
+
+        public BotLogError()
+        {
+
+        }
 
         public BotLogError(Exception ex)
         {
@@ -18,6 +28,21 @@ namespace RunOrGunGameBot.Bot.DataClasses
             this.DateTime = DateTime.Now;
             this.Exception = ex;
             logID++;
+        }
+
+        public static string FlattenException(Exception exception)
+        {
+            var stringBuilder = new StringBuilder();
+
+            while (exception != null)
+            {
+                stringBuilder.AppendLine(exception.Message);
+                stringBuilder.AppendLine(exception.StackTrace);
+
+                exception = exception.InnerException;
+            }
+
+            return stringBuilder.ToString();
         }
 
         public static bool operator ==(BotLogError a, Object obj)

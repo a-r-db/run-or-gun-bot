@@ -7,6 +7,8 @@
 <br />
 <Switch TValue="bool" Checked="@BotSettings.Enabled" CheckedChanged="@OnStateChanged">Enable Bot</Switch>
 <br />
+<Button Clicked="@(args => Save())">Save Logs</Button>
+<br />
 <DataGrid ShowPager="true" RowDoubleClicked="@(args => OnErrorRowClicked(args))" @bind-SelectedRow="@botLogError" PageSize="5" Data="@BotSettings.BotLogErrorList" TItem="BotLogError">
     <DataGridColumns>
         <DataGridDateColumn TItem="BotLogError" Field="@nameof(BotLogError.DateTime)" DisplayFormat="{0:MM/dd/yyyy hh:mm:ss tt}" Caption="Date" />
@@ -53,6 +55,11 @@
     private void OnStateChanged(bool switchState)
     {
         BotSettings.Enabled = switchState;
+    }
+
+    private void Save()
+    {
+        BotSettings.SaveLogs<List<BotLogError>>(BotSettings.BotLogErrorList, "bot_error_log_");
     }
 
     public void OnErrorRowClicked(DataGridRowMouseEventArgs<BotLogError> e)
@@ -105,9 +112,9 @@
             new StackTraceHtmlFragments
             {
                 BeforeType = "<strong>",    // highlight type
-            AfterMethod = "</strong>",   // ...and method
-            BeforeParameterName = "<em>",        // emphasise parameter names
-            AfterParameterName = "</em>",
+                AfterMethod = "</strong>",   // ...and method
+                BeforeParameterName = "<em>",        // emphasise parameter names
+                AfterParameterName = "</em>",
             })
             + "</code></pre>";
     }
