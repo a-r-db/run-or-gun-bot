@@ -132,10 +132,15 @@ namespace RunOrGunGameBot.Bot.Game
             }
             DiscordEmbedBuilder discordEmbedBuilder = new()
             {
-                Title = "RunOrGun Game | `. help player`",
+                Title = "RunOrGun Game | `. help`",
                 Description = boardOutput
             };
             discordEmbedBuilder.AddField("Player", $"{viewer.DiscordUser.Username}");
+            discordEmbedBuilder.AddField("Help", "```\n" +
+                ". help\n" +
+                ". help (cmd)\n" +
+                ". help move\n" +
+                "\n```");
             return discordEmbedBuilder.Build();
         }
 

@@ -53,7 +53,7 @@ namespace RunOrGunGameBot.Bot.Game
                 Board = new Board(this.Players.Count);
                 Players = Players.OrderBy(p => rand.Next()).ToList(); // shuffle player order
                 Players[PlayerTurn].Notify("Please start your turn!\n" +
-                    "Use `. help player` for more information!");
+                    "Use `. help` for more information!");
                 Players[PlayerTurn].TurnActive = true;
                 if (!GameMode.HasFlag(GameMode.Guided))
                 {
