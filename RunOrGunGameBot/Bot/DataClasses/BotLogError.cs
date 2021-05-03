@@ -12,7 +12,7 @@ namespace RunOrGunGameBot.Bot.DataClasses
         public DateTime DateTime { get; set; }
         [XmlIgnore]
         public Exception Exception { get; set; }
-        public string ExceptionAsString => FlattenException(this.Exception);
+        public string ExceptionAsString { get; set; }
         public string Message => this.Exception.Message;
         public string StackTrace => this.Exception.StackTrace;
 
@@ -27,6 +27,7 @@ namespace RunOrGunGameBot.Bot.DataClasses
             this.LogID = logID;
             this.DateTime = DateTime.Now;
             this.Exception = ex;
+            this.ExceptionAsString = FlattenException(ex);
             logID++;
         }
 

@@ -235,8 +235,15 @@ namespace RunOrGunGameBot.Bot.Game
             }
             catch (Exception e)
             {
-                BotSettings.BotLogErrorList.Add(new BotLogError(e));
-                return e.Message;
+                if (e is GameBoardException || e is GamePlayerException)
+                {
+                    return e.Message;
+                }
+                else
+                {
+                    BotSettings.BotLogErrorList.Add(new BotLogError(e));
+                    return e.Message;
+                }
             }
         }
 
