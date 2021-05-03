@@ -366,23 +366,33 @@ namespace RunOrGunGameBot.Bot.Game
         public void CheckForMines(ref List<Player> players,
             ref List<Mine> mines, ref List<Player> killed)
         {
-            foreach (Player p in players)
+            foreach (Mine m in mines)
             {
-                foreach (Mine m in mines)
+                // TODO: add stacked mines logic
+                if (m.MineStatus == MineStatus.Released
+                    && m.Position == this.Position)
                 {
-                    // TODO: add stacked mines logic
-                    if (m.MineStatus == MineStatus.Released
-                        && m.Position == this.Position)
+                    this.PlayerStatus = PlayerStatus.Exploded;
+                    this.KilledBy = m.Owner;
+                    foreach(Player p in players)
                     {
-                        this.PlayerStatus = PlayerStatus.Exploded;
-                        this.KilledBy = p;
-                        p.Kills.Add(this);
-                        killed.Add(this);
-                        m.Detonated(this);
-                        Game.NotifyAll(players,
-                            $"{this.DiscordUser.Username} died from" +
-                            $" a mine left by {p.DiscordUser.Username}!");
+                        if (p.DiscordUser.Id == m.Owner.DiscordUser.Id)
+                        {
+                            p.Kills.Add(this);
+                        }
                     }
+                    foreach (Player p in killed)
+                    {
+                        if (p.DiscordUser.Id == m.Owner.DiscordUser.Id)
+                        {
+                            p.Kills.Add(this);
+                        }
+                    }
+                    killed.Add(this);
+                    m.Detonated(this);
+                    Game.NotifyAll(players,
+                        $"{this.DiscordUser.Username} died from" +
+                        $" a mine left by {m.Owner.DiscordUser.Username}!");
                 }
             }
         }
