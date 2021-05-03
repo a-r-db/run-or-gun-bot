@@ -209,7 +209,7 @@ namespace RunOrGunGameBot.Bot.Game
             this.HasAirstrike = true;
             if (!PlayerStatus.HasFlag(PlayerStatus.Cloaked))
                 Game.NotifyAll(players,
-                    $"{this.DiscordUser.Username} readied an airstrike!\n");
+                    $"{this.DiscordUser.Username} prepared an airstrike!\n");
         }
 
         public void Move(string direction, ref List<Player> players,
