@@ -377,8 +377,8 @@ namespace RunOrGunGameBot.Bot.Game
                         this.PlayerStatus = PlayerStatus.Exploded;
                         this.KilledBy = p;
                         p.Kills.Add(this);
-                        killed.Add(p);
-                        m.Detonated(p);
+                        killed.Add(this);
+                        m.Detonated(this);
                         Game.NotifyAll(players,
                             $"{this.DiscordUser.Username} died from" +
                             $" a mine left by {p.DiscordUser.Username}!");
